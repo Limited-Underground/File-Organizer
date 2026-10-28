@@ -1,0 +1,24 @@
+# Generated .NET / Avalonia / IDE outputs
+**/bin/
+**/obj/
+**/.avalonia-build-tasks/
+.vs/
+.idea/
+*.user
+*.suo
+TestResults/
+artifacts/
+tmp/
+.cache/
+*.log
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.dmp
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.snk
