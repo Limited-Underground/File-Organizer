@@ -1,5 +1,7 @@
 # V1 roadmap and validation plan
 
+October 29 execution note: dedicated Project #16 now contains the existing FO-001–FO-018 draft tasks and uses Todo/In Progress/Done. Existing FO-002 owns the owner-authorized first executable architecture checkpoint recorded in PROJECT_STATUS.md. Its bounded local validation does not close broader architecture or later-task acceptance. No duplicate task list was created; the initial milestone/task acceptance below remains engineering sequence.
+
 Status: local proposal for `File Organizer — Development`, 2026-10-28. No issues, milestones or Project items are asserted created by this file. After approved publication, GitHub Projects owns live scope/status/dependencies; this document retains acceptance gates and engineering IDs. Production implementation remains unauthorized until owner architecture acceptance.
 
 ## Milestone sequence

@@ -1,5 +1,7 @@
 # Technology evaluation
 
+October 29 implementation checkpoint: the owner selected .NET SDK 10.0.303, Avalonia 12.1.4 and Microsoft.Data.Sqlite/Hosting 10.0.14 for the bounded FO-002 shell. Exact central pins and per-project lock files are now present; initial package restore/build/test passed. This supersedes the original no-selected-dependencies observation below for this checkpoint. The local dependency-license receipt records package metadata; native ANGLE's packaged LICENSE uses BSD-style attribution conditions, and xunit.abstractions points to xUnit's license. Preserve native/transitive notices and complete release SBOM/audit before any distribution. No commercial Avalonia tooling or installer tool was selected.
+
 Research checked October 28, 2026 against the official sources linked below. Recommendations await final architecture acceptance; no performance claims or feasibility results are implied. See [Architecture](ARCHITECTURE.md) for the integrated design and [Benchmarks](BENCHMARKS.md) for validation gates.
 
 | Area | Recommendation | Alternatives, tradeoffs and validation |

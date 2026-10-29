@@ -4,7 +4,7 @@ Community modifications and pull requests are welcome under Apache 2.0. Intentio
 
 ## Authority and continuity
 
-Read README and docs/PROJECT_STATUS.md first. GitHub Projects will own live task scope, priority, dependencies and owner decisions once established. docs/ROADMAP.md is the initial publication draft, not a competing live tracker. Until then, the explicit foundation request authorizes local preparation only. Board status never grants implementation, publication, system, physical or release authority.
+Read README and docs/PROJECT_STATUS.md first. Dedicated GitHub Project #16 owns live task scope, priority, dependencies and owner decisions. docs/ROADMAP.md retains engineering acceptance and sequence, not a competing live tracker. The owner authorized the bounded first executable checkpoint under FO-002 on October 29, 2026. Board status never grants implementation, publication, system, physical or release authority.
 
 Before each task inspect the actual repository/ref, working changes, scope and retained task artifacts; assign appropriate subagents. Use clear outcomes and proportionate validation. No fixed six-section ceremony, daily PR limit or publication time window applies. Preserve dirty work, evidence and unrelated files. Recover routine tool failures without expanding scope. Do not access obsolete copies or another session's active workspace.
 
@@ -14,7 +14,7 @@ Publication requires explicit authorization for repository, destination, ref and
 
 The planned layout is src/ for desktop and application/core modules, src/adapters/ for platform adapters, tests/ for unit/integration/fault tests, docs/ for contracts, tools/ for developer tooling, and ignored artifacts/ and tmp/ for generated and disposable output. ARCHITECTURE.md owns exact module names. Create directories when their first real file is needed; no placeholder code or empty projects are required.
 
-Use modern C# on .NET 10, nullable reference types, explicit cancellation, async I/O and bounded concurrency. Keep UI code out of engines. Avoid catch-and-ignore, unbounded enumerations and treating paths as stable identities. Dependency versions and SDK patch are pinned in reviewed build configuration when the first build is authorized; do not invent package pins in this documentation-only foundation. Use central package management, locked restore, license review, vulnerability review and an SBOM before distribution. No dependency has yet been selected or downloaded.
+Use modern C# on .NET 10, nullable reference types, explicit cancellation, async I/O and bounded concurrency. Keep UI code out of engines. Avoid catch-and-ignore, unbounded enumerations and treating paths as stable identities. SDK and package versions are pinned in global.json, Directory.Packages.props and per-project lock files. Use tools/Test-Development.ps1 for the reproducible validation route; ordinary restore uses locked mode after these reviewed pins. Use license review, vulnerability review and an SBOM before distribution. The checkpoint introduces no dependency on optional commercial Avalonia tooling.
 
 ## Review and evidence
 

@@ -1,5 +1,13 @@
 # Architecture proposal
 
+## Executable checkpoint selected October 29, 2026
+
+The owner authorized the first buildable V1 milestone. Existing FO-002 (Project #16 item 286303703) owns this bounded architecture proof; later tasks retain their acceptance. Use .NET SDK 10.0.303, net10.0 libraries, Avalonia 12.1.4, Microsoft.Data.Sqlite/Hosting 10.0.14, central package versions and locked restore. The exact versions were verified against the official NuGet feed before source creation.
+
+Create Application (lifecycle, storage port, paths/profile lease, diagnostics), Persistence (SQLite migration/bootstrap), Desktop (Avalonia navigation shell and composition) and tests only. No empty Core, Engine or platform projects. The first worker is in-process, cancellable, and ends with the UI; the existing design explicitly permits hosting application services together in early tests. The separate per-user executable/IPC and background-after-close behavior remain FO-014, with the original target architecture below preserved. The shell navigates between status pages and never enumerates user files.
+
+Default state lives in the existing per-user LocalApplicationData convention. Explicit smoke runs use a separately supplied task-owned application-data directory and leave normal state untouched. Initial SQLite migration contains migration metadata and a small application-startup record only; no invented inventory schema. Logging records safe event IDs/types without raw exceptions, messages, paths or file content. Close awaits host cancellation and releases the exclusive profile lease. Installer/tool/signing, full transfer metadata policy and performance acceptance remain later gates; this checkpoint does not implement file operations or claim those gates passed.
+
 Status: proposed for owner review, 2026-10-28. No application functionality, database, installer or service exists. This document owns module boundaries, persistence and recovery contracts. [Requirements](REQUIREMENTS.md) owns behavior; [benchmarks](BENCHMARKS.md) owns feasibility evidence.
 
 ## Deployment and ownership
