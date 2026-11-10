@@ -11,7 +11,7 @@ public sealed class IndexedInventoryFilterDraftTests
     {
         var filter = new InventoryFilterDraft(" %_\\ ", MinBytes: "0", MaxBytes: "9223372036854775807",
             ModifiedFrom: "2024-02-29", ModifiedThrough: "9999-12-31",
-            CaseMode: IndexedInventoryCaseMode.MatchCase, Metadata: IndexedInventoryMetadataMode.Available).Parse();
+            CaseMode: IndexedInventoryCaseMode.MatchCase, Metadata: IndexedInventoryMetadataMode.Available, Extension: ".tar.gz").Parse();
         Assert.Equal(" %_\\ ", filter.Text);
         Assert.Equal(0L, filter.MinBytes);
         Assert.Equal(long.MaxValue, filter.MaxBytes);
@@ -19,6 +19,7 @@ public sealed class IndexedInventoryFilterDraftTests
         Assert.Equal(new DateOnly(9999, 12, 31), filter.ModifiedThrough);
         Assert.Equal(IndexedInventoryCaseMode.MatchCase, filter.CaseMode);
         Assert.Equal(IndexedInventoryMetadataMode.Available, filter.Metadata);
+        Assert.Equal(".tar.gz", filter.Extension);
     }
 
     [Theory]

@@ -9,10 +9,10 @@ internal sealed record InventoryFilterDraft(
     InventoryEntryKind? Kind = null, string MinBytes = "", string MaxBytes = "",
     string ModifiedFrom = "", string ModifiedThrough = "",
     IndexedInventoryCaseMode CaseMode = IndexedInventoryCaseMode.IgnoreCase,
-    IndexedInventoryMetadataMode Metadata = IndexedInventoryMetadataMode.Any)
+    IndexedInventoryMetadataMode Metadata = IndexedInventoryMetadataMode.Any, string Extension = "")
 {
     public IndexedInventoryFilter Parse() => IndexedInventoryFilter.Normalize(new(Text, Scope, Kind,
-        Bytes(MinBytes), Bytes(MaxBytes), Date(ModifiedFrom), Date(ModifiedThrough), CaseMode, Metadata));
+        Bytes(MinBytes), Bytes(MaxBytes), Date(ModifiedFrom), Date(ModifiedThrough), CaseMode, Metadata, Extension));
 
     private static long? Bytes(string value)
     {
