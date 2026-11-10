@@ -1,3 +1,7 @@
+# P14 host-only saved-extension query increment — November 10, 2026
+
+The existing immutable IndexedInventoryFilter appends Extension, default empty. A nonempty literal dotted suffix is bounded to 128 UTF-16 code units and rejects separators/control characters; compound suffixes and dotfiles use literal filename matching. Only File rows match, independent of the parent path; this is not content-type detection. It shares explicit ordinal IgnoreCase/MatchCase policy, is combined by AND, and participates in existing record/cursor equality. Persistence uses the same bounded managed scalar/read-only query with no SQL/schema/dependency change. The host view-model summary and no-match label include this criterion; no view/control is added. Earlier architecture sections describe their dated scopes; no snapshot/native/source-capability acceptance is inferred.
+
 # Architecture proposal
 
 ## Current bounded FO-012 saved search/filter continuation — October 29, 2026

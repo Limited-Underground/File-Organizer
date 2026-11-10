@@ -1,3 +1,7 @@
+# Current local P14 continuation — November 10, 2026
+
+Direct owner task P14 under D-017 selects isolated local dev/20261110 from preserved a93564938b38fbc9ef848e354280f98261f38ab1 for host-only FO-012 disposable-fixture work. This increment adds a literal dotted filename-suffix criterion to saved queries and host view-model summaries/tests. It grants no GUI/native smoke, real-root indexing, canonical edits, HOLD bin access, GitHub write, publication or FO-002 decision. Earlier scope/count statements below are dated history, not additional authority or current counts. Follow docs/PROJECT_STATUS.md and the P14 report for actual results and unresolved acceptance.
+
 # Developer and AI entrypoint
 
 Read README.md, CONTRIBUTING.md and docs/PROJECT_STATUS.md before work. Review task scope and assign appropriate subagents before each task. Follow the maintained task and accepted architecture; if it is not on the task list, do not touch it.

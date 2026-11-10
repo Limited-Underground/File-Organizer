@@ -1,3 +1,15 @@
+# P14 local host development — November 10, 2026
+
+Owner task P14 (under D-017) selects local dev/20261110 from preserved baseline a93564938b38fbc9ef848e354280f98261f38ab1 in an isolated worktree. The canonical candidate and its dirty overlay remain intact. No public adoption is implied.
+
+Implemented here: saved-generation query port adds optional literal Extension suffix (empty means any; nonempty begins a dot, 2–128 UTF-16 code units, no path separator/control characters). It matches only the saved filename of File rows, including compound suffixes such as .tar.gz and dotfiles such as .gitignore, under the existing explicit ordinal case policy. Whitespace and Unicode normalization form are preserved. This is filename matching, not content/MIME detection or volume case-capability evidence. It ANDs with all existing predicates and binds exact cursor identity. Existing cancellation/evaluation limits and typed metadata refusals are retained. The host view-model exposes applied suffix in its summary and labels extension-only no-match results honestly; there is no new desktop control yet.
+
+Pending: owner-only desktop layout/close and eventual extension-control exposure; live-root identity/offline/stale state; FO-006 reconciliation/snapshots, FO-009 navigation, qualified allocation/hard-link storage evidence and full FO-002 decisions. No real indexing, GUI/native smoke, HOLD bin access, public source, GitHub write or architecture decision performed. Current GitHub parent statuses remain as read back; P14 explicitly prohibits writes.
+
+Validation — November 10: unchanged baseline Debug/Release each 206 passed, 7 skipped; final code candidate 0e1c6e4193749885bd42ee39acd54eed8233c44b Debug/Release each 221 passed, 7 skipped, 0 failed, with zero build warnings/errors. Fifteen added cases qualify only host saved-query/view-model behavior. Existing two native-symlink capability skips and five opt-in benchmarks remain explicit; no opt-in, real-root or GUI run. Test-only async-assertion and invalid-path fixture failures were corrected, with original evidence retained.
+
+Validation logs and local commit history are recorded in the P14 task report; earlier dated material below is historical at its own source binding.
+
 # File Organizer development handoff
 ## FO-012 View-only layout correction - November 4, 2026
 
