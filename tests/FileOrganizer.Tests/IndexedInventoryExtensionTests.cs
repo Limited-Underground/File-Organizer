@@ -75,14 +75,14 @@ public sealed class IndexedInventoryExtensionTests
     }
 
     [Fact]
-    public void InvalidExtensionsRefuseBeforeAnyDatabaseReadAndDefaultStaysInactive()
+    public async Task InvalidExtensionsRefuseBeforeAnyDatabaseReadAndDefaultStaysInactive()
     {
         Assert.False(new IndexedInventoryFilter().IsActive);
         Assert.True(new IndexedInventoryFilter(Extension: ".txt").IsActive);
         var reader = new SqliteIndexedInventoryReader(new AppDataPaths(new TestWorkspace().Root));
         foreach (var invalid in new string?[] { null, ".", "txt", ".bad/path", ".bad\\path", ".bad\n", "." + new string('x', 128) })
-            Assert.Equal("inventory.query_invalid_filter", Assert.Throws<InventoryIndexException>(() => reader.ReadPageAsync(
-                new("extension-root", Guid.NewGuid().ToString("N"), Filter: new(Extension: invalid!)), CancellationToken.None)).Code);
+            Assert.Equal("inventory.query_invalid_filter", (await Assert.ThrowsAsync<InventoryIndexException>(() => reader.ReadPageAsync(
+                new("extension-root", Guid.NewGuid().ToString("N"), Filter: new(Extension: invalid!)), CancellationToken.None))).Code);
     }
 
     [Fact]
