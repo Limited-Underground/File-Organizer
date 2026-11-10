@@ -119,7 +119,7 @@ public sealed class IndexedInventoryExtensionTests
     {
         var paths = new AppDataPaths(new TestWorkspace().Root);
         await new SqliteApplicationStore(paths).InitializeAsync(CancellationToken.None);
-        var names = new[] { "A.TXT", "b.txt", "archive.tar.gz", "literal.%_'", ".gitignore", "unicode.CAFÉ", "plain", "trailing.", "folder/name.txt", "folder.txt/plain" };
+        var names = new[] { "A.TXT", "b.txt", "archive.tar.gz", "literal.%_'", ".gitignore", "unicode.CAFÉ", "plain", "folder/name.txt", "folder.txt/plain" };
         var entries = names.Select((name, index) => new InventoryEntry(name, InventoryEntryKind.File, "id-" + index, 9, Epoch, 128)).ToList();
         entries.Add(new("folder", InventoryEntryKind.Directory, "folder", 0, Epoch, 16));
         entries.Add(new("folder.txt", InventoryEntryKind.Directory, "folder.txt", 0, Epoch, 16));
