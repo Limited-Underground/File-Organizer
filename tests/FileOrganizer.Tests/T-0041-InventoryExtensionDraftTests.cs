@@ -18,7 +18,7 @@ public sealed class T0041InventoryExtensionDraftTests
         Assert.Equal(".txt", model.AppliedFilter.Extension);
         Assert.Equal(50, model.Rows.Count);
         Assert.Contains("Filename suffix: .txt", model.FilterSummary);
-        Assert.All(model.Rows, row => Assert.True(row.RelativePath.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)));
+        Assert.All(model.Rows, row => Assert.EndsWith(".txt", row.RelativePath, StringComparison.OrdinalIgnoreCase));
         var first = model.Rows.Select(row => row.RelativePath).ToArray();
         await model.NextPageAsync();
         Assert.Equal(2, model.PageNumber);
