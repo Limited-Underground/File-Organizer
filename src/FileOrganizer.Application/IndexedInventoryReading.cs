@@ -22,15 +22,18 @@ public sealed record IndexedInventoryFilter(string Text = "", IndexedInventorySe
     InventoryEntryKind? Kind = null, long? MinBytes = null, long? MaxBytes = null,
     DateOnly? ModifiedFrom = null, DateOnly? ModifiedThrough = null,
     IndexedInventoryCaseMode CaseMode = IndexedInventoryCaseMode.IgnoreCase,
-    IndexedInventoryMetadataMode Metadata = IndexedInventoryMetadataMode.Any)
+    IndexedInventoryMetadataMode Metadata = IndexedInventoryMetadataMode.Any, string Extension = "")
 {
     public bool IsActive => !string.IsNullOrEmpty(Text) || Kind is not null || MinBytes is not null || MaxBytes is not null ||
-        ModifiedFrom is not null || ModifiedThrough is not null || Metadata != IndexedInventoryMetadataMode.Any;
+        ModifiedFrom is not null || ModifiedThrough is not null || Metadata != IndexedInventoryMetadataMode.Any || !string.IsNullOrEmpty(Extension);
 
     public static IndexedInventoryFilter Normalize(IndexedInventoryFilter? filter)
     {
         filter ??= new IndexedInventoryFilter();
         if (filter.Text is null || filter.Text.Length > 128 || filter.Text.Any(char.IsControl) ||
+            filter.Extension is null || filter.Extension.Length > 128 ||
+            (filter.Extension.Length != 0 && (filter.Extension.Length < 2 || filter.Extension[0] != '.' ||
+                filter.Extension.Any(character => char.IsControl(character) || character is '/' or '\\'))) ||
             !Enum.IsDefined(filter.Scope) || (filter.Kind is { } kind && !Enum.IsDefined(kind)) ||
             !Enum.IsDefined(filter.CaseMode) || !Enum.IsDefined(filter.Metadata) || filter.MinBytes < 0 || filter.MaxBytes < 0 ||
             filter.MinBytes > filter.MaxBytes || filter.ModifiedFrom > filter.ModifiedThrough)

@@ -190,6 +190,21 @@ public sealed class IndexedInventorySearchViewModelTests
         Assert.Null(model.ErrorCode);
     }
 
+    [Fact]
+    public async Task ExtensionOnlyNoMatchRemainsAFilteredResultAndClearRemovesItsSummary()
+    {
+        var reader = new Reader { Query = (request, _) => Task.FromResult(new IndexedInventoryPage(
+            new(request.RootIdentity, request.GenerationId, 100, false), [], null, true, request.GenerationId)) };
+        await using var model = new InventoryViewModel(reader);
+        await model.RefreshAsync();
+        await model.ApplyFilterAsync(new(Extension: ".txt"));
+        Assert.Contains("No saved indexed results match", model.Message);
+        Assert.Contains("Filename suffix: .txt", model.FilterSummary);
+        await model.ClearFilterAsync();
+        Assert.Contains("published catalog has no indexed entries", model.Message);
+        Assert.Contains("Filename suffix: Any", model.FilterSummary);
+    }
+
     private static TaskCompletionSource<T> Pending<T>() => new(TaskCreationOptions.RunContinuationsAsynchronously);
     private static IndexedInventoryPage Page(IndexedInventoryRequest request) => new(
         new(request.RootIdentity, request.GenerationId, 100, false),

@@ -44,6 +44,7 @@ internal sealed class InventoryViewModel(IIndexedInventoryReader reader) : INoti
     public string FilterSummary =>
         (appliedFilter.Text.Length == 0 ? "All saved entries" : $"{appliedFilter.Scope} contains “{appliedFilter.Text}”") +
         $" · Kind: {appliedFilter.Kind?.ToString() ?? "All"} · Bytes: {appliedFilter.MinBytes?.ToString() ?? "Any"} to {appliedFilter.MaxBytes?.ToString() ?? "Any"}" +
+        $" · Filename suffix: {(appliedFilter.Extension.Length == 0 ? "Any" : appliedFilter.Extension)}" +
         $" · Modified UTC: {appliedFilter.ModifiedFrom?.ToString("yyyy-MM-dd") ?? "Any"} through {appliedFilter.ModifiedThrough?.ToString("yyyy-MM-dd") ?? "Any"}" +
         $" · Metadata: {appliedFilter.Metadata} · {(appliedFilter.CaseMode == IndexedInventoryCaseMode.MatchCase ? "Ordinal case-sensitive" : "Ordinal case-insensitive")} literal match · Source case capability: Unknown";
     public bool CanNextPage => !isLoading && nextCursor is not null;
@@ -197,8 +198,7 @@ internal sealed class InventoryViewModel(IIndexedInventoryReader reader) : INoti
         selectedCatalog = result.Catalog;
         rows = Array.AsReadOnly(result.Rows.ToArray());
         publicationChanged = !result.IsCurrentPublication;
-        var hasPredicate = filter.Text.Length != 0 || filter.Kind is not null || filter.MinBytes is not null || filter.MaxBytes is not null ||
-            filter.ModifiedFrom is not null || filter.ModifiedThrough is not null || filter.Metadata != IndexedInventoryMetadataMode.Any;
+        var hasPredicate = filter.IsActive;
         message = rows.Count == 0 ? hasPredicate ? "No saved indexed results match the applied filters." : "This published catalog has no indexed entries." :
             $"Page {pageNumber} · {rows.Count} {(hasPredicate ? "matching " : string.Empty)}rows · Catalog total: {result.Catalog.EntryCount:N0} indexed entries · Path order";
         if (publicationChanged) message += " Published results changed. These rows remain pinned to the earlier generation; Refresh loads the current publication.";

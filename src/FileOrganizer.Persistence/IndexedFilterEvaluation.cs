@@ -50,6 +50,9 @@ internal sealed class IndexedFilterEvaluation
         var target = filter.Scope == IndexedInventorySearchScope.Name
             ? field.AsSpan(field.LastIndexOf('/') + 1) : field.AsSpan();
         var day = DateOnly.FromDateTime(entry.ModifiedUtc);
+        var comparison = filter.CaseMode == IndexedInventoryCaseMode.MatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        // This is a literal saved filename suffix, not MIME/content detection or a filesystem lookup.
+        var name = field.AsSpan(field.LastIndexOf('/') + 1);
         return (filter.Kind is null || entry.Kind == filter.Kind.Value) &&
             (filter.Metadata == IndexedInventoryMetadataMode.Any ||
                 (filter.Metadata == IndexedInventoryMetadataMode.Available) == entry.IsAvailable) &&
@@ -59,8 +62,8 @@ internal sealed class IndexedFilterEvaluation
             ((filter.ModifiedFrom is null && filter.ModifiedThrough is null) ||
                 (entry.IsAvailable && (filter.ModifiedFrom is null || day >= filter.ModifiedFrom) &&
                     (filter.ModifiedThrough is null || day <= filter.ModifiedThrough))) &&
-            (filter.Text.Length == 0 || target.Contains(filter.Text.AsSpan(), filter.CaseMode == IndexedInventoryCaseMode.MatchCase
-                ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
+            (filter.Text.Length == 0 || target.Contains(filter.Text.AsSpan(), comparison)) &&
+            (filter.Extension.Length == 0 || (entry.Kind == InventoryEntryKind.File && name.EndsWith(filter.Extension.AsSpan(), comparison)));
     }
 
     [DoesNotReturn]
