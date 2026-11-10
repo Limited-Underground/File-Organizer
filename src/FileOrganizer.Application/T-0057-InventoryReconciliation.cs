@@ -3,7 +3,8 @@ namespace FileOrganizer.Application;
 
 public enum SuppliedInventoryCoverage { Complete, Unknown, Offline }
 public sealed record InventoryReconciliationPlan(string OperationId, InventoryCoverageReceipt Before,
-    string JournalIdentity, long NextUsn, SuppliedInventoryCoverage Coverage);
+    string JournalIdentity, long NextUsn, SuppliedInventoryCoverage Coverage,
+    InventoryIdentityEvidence IdentityEvidence = InventoryIdentityEvidence.Unverified);
 public sealed record InventoryReconciliationState(string OperationId, string RequestHash,
     InventoryRootState Root, InventoryScanState Scan, InventoryCoverageReceipt Receipt)
 {

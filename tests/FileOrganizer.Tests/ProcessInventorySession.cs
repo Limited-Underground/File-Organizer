@@ -124,7 +124,8 @@ internal sealed class ProcessInventorySession : IDisposable
             var backupName = Path.GetFileName(backup);
             if (!backupName.StartsWith("before-inventory-v2-", StringComparison.Ordinal) &&
                 !backupName.StartsWith("before-inventory-v3-", StringComparison.Ordinal) &&
-                !backupName.StartsWith("before-inventory-v4-", StringComparison.Ordinal))
+                !backupName.StartsWith("before-inventory-v4-", StringComparison.Ordinal) &&
+                !backupName.StartsWith("before-inventory-v5-", StringComparison.Ordinal))
                 throw new InvalidOperationException("fixture.session.backup_version");
             RejectReparseAncestors(backup);
             using var handle = pins.OpenReadFile(backups, Path.GetFileName(backup));

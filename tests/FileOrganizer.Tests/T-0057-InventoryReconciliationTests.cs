@@ -203,12 +203,12 @@ public sealed class T0057InventoryReconciliationTests
         using (var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = backup, Mode = SqliteOpenMode.ReadOnly, Pooling = false }.ToString()))
         { connection.Open(); SqliteApplicationStore.ValidateMigration(connection, null, 3); }
         var adopted = await new InventoryReconciler(new SuppliedSource(AfterTruth()), new SqliteInventoryStore(paths)).RunAsync(plan);
-        Assert.Equal(4, (await new SqliteApplicationStore(paths).InitializeAsync(CancellationToken.None)).SchemaVersion);
-        Assert.Equal(4L, Scalar(paths, "SELECT count(*) FROM SchemaMigration;"));
+        Assert.Equal(5, (await new SqliteApplicationStore(paths).InitializeAsync(CancellationToken.None)).SchemaVersion);
+        Assert.Equal(5L, Scalar(paths, "SELECT count(*) FROM SchemaMigration;"));
         Assert.Equal(oldChecksums, Scalar(paths, "SELECT group_concat(Checksum,',') FROM (SELECT Checksum FROM SchemaMigration WHERE Version<=3 ORDER BY Version);"));
         Assert.Equal(hash, SHA256.HashData(File.ReadAllBytes(backup)));
         Assert.Equal(new[] { "a.txt", "new.txt" }, await Paths(paths, adopted.Root.GenerationId));
-        Execute(paths, "PRAGMA user_version=5;");
+        Execute(paths, "PRAGMA user_version=6;");
         await Assert.ThrowsAsync<StoreInitializationException>(() => new SqliteApplicationStore(paths).InitializeAsync(CancellationToken.None));
     }
 

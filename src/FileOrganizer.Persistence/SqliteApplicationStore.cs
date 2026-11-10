@@ -12,7 +12,7 @@ namespace FileOrganizer.Persistence;
 /// </summary>
 public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationStore
 {
-    private const int CurrentSchemaVersion = 4;
+    private const int CurrentSchemaVersion = 5;
     private const string InitialMigration = """
         CREATE TABLE SchemaMigration (
             Version INTEGER NOT NULL PRIMARY KEY CHECK (Version > 0),
@@ -129,7 +129,7 @@ public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationSto
         using var reader = command.ExecuteReader();
         for (var expected = 1; expected <= version; expected++)
         {
-            var checksum = expected switch { 1 => InitialChecksum, 2 => InventorySchema.Checksum, 3 => InventoryCaptureSchema.Checksum, _ => InventoryReconciliationSchema.Checksum };
+            var checksum = expected switch { 1 => InitialChecksum, 2 => InventorySchema.Checksum, 3 => InventoryCaptureSchema.Checksum, 4 => InventoryReconciliationSchema.Checksum, _ => InventoryComparisonSchema.Checksum };
             if (!reader.Read() || reader.GetInt32(0) != expected ||
                 !string.Equals(reader.GetString(1), checksum, StringComparison.Ordinal))
                 throw new StoreInitializationException("store.migration_mismatch");

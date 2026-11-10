@@ -217,7 +217,7 @@ public sealed class SqliteIndexedInventoryReader : IIndexedInventoryReader
     private static int ReadSchema(SqliteConnection connection, SqliteTransaction transaction)
     {
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, transaction, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version is < 1 or > 4) throw new InventoryIndexException("inventory.query_schema_unsupported");
+        if (version is < 1 or > 5) throw new InventoryIndexException("inventory.query_schema_unsupported");
         SqliteApplicationStore.ValidateMigration(connection, transaction, version);
         return version;
     }

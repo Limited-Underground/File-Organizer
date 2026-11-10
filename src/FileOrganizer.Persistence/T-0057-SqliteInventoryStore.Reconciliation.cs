@@ -27,13 +27,18 @@ public sealed partial class SqliteInventoryStore
         if (plan.Coverage != SuppliedInventoryCoverage.Complete)
             throw new InventoryIndexException("inventory.reconciliation_unverified_coverage");
         if (!Guid.TryParseExact(plan.OperationId, "N", out var operation) || operation.ToString("N") != plan.OperationId ||
-            plan.NextUsn < 0 || batchSize is < 1 or > 64)
+            !Enum.IsDefined(plan.IdentityEvidence) || plan.NextUsn < 0 || batchSize is < 1 or > 64)
             throw new InventoryIndexException("inventory.reconciliation_invalid_request");
         PreparedInventorySnapshot.ValidateCaptureIdentity(plan.JournalIdentity);
         var prepared = PreparedInventorySnapshot.Create(snapshot);
         if (prepared.RootIdentity != plan.Before.RootIdentity || prepared.HasErrors)
             throw new InventoryIndexException("inventory.reconciliation_incomplete");
-        var hash = Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new { plan, prepared.Fingerprint })));
+        // Keep the default pre-v5 operation hash byte-compatible for exact retry after migration.
+        var bytes = plan.IdentityEvidence == InventoryIdentityEvidence.Unverified
+            ? JsonSerializer.SerializeToUtf8Bytes(new { plan = new { plan.OperationId, plan.Before,
+                plan.JournalIdentity, plan.NextUsn, plan.Coverage }, prepared.Fingerprint })
+            : JsonSerializer.SerializeToUtf8Bytes(new { plan, prepared.Fingerprint });
+        var hash = Convert.ToHexString(SHA256.HashData(bytes));
         var publication = new ReconciliationPublication(plan, prepared.Fingerprint, hash, reconciliationObserver);
         return Task.Run(() => WithLock(() => Reconcile(prepared, publication, batchSize, cancellationToken, recapture), cancellationToken), cancellationToken);
     }
@@ -44,7 +49,7 @@ public sealed partial class SqliteInventoryStore
         if (!File.Exists(paths.DatabasePath))
             throw new InventoryIndexException("inventory.reconciliation_missing_publication");
         using var connection = Open();
-        InventoryReconciliationSchema.Ensure(connection, paths.DataDirectory, token,
+        InventoryComparisonSchema.Ensure(connection, paths.DataDirectory, token,
             () => reconciliationObserver?.Invoke(InventoryReconciliationStage.BeforeMigrationCommit));
         using (var before = connection.BeginTransaction(deferred: true))
         {
@@ -77,7 +82,7 @@ public sealed partial class SqliteInventoryStore
             if (!File.Exists(paths.DatabasePath)) return null;
             using var connection = Open();
             var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-            if (version > 4) throw new StoreInitializationException("store.newer_schema");
+            if (version > 5) throw new StoreInitializationException("store.newer_schema");
             SqliteApplicationStore.ValidateMigration(connection, null, version);
             if (version < 4) return null;
             using var transaction = connection.BeginTransaction(deferred: true);
@@ -185,6 +190,7 @@ public sealed partial class SqliteInventoryStore
         write.Parameters.AddWithValue("$next", publication.Plan.NextUsn); write.Parameters.AddWithValue("$sequence", publication.Plan.Before.LastNoticeSequence);
         write.Parameters.AddWithValue("$issues", (int)publication.Plan.Before.Issues);
         if (write.ExecuteNonQuery() != 1) throw new InventoryIndexException("inventory.reconciliation_invalid_state");
+        RetainGenerationCommit(connection, transaction, root, generation, publication);
         publication.Observe?.Invoke(InventoryReconciliationStage.AfterBoth);
     }
 }

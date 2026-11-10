@@ -30,7 +30,7 @@ internal static class InventoryReconciliationSchema
     {
         InventoryCaptureSchema.Ensure(connection, dataDirectory, token);
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version == 4) return;
+        if (version >= 4) return;
         if (version != 3) throw new StoreInitializationException("store.invalid_schema");
         token.ThrowIfCancellationRequested();
         var directory = Path.Combine(dataDirectory, "backups");
