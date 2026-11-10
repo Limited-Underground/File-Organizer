@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 namespace FileOrganizer.Persistence;
 
 /// <summary>Stages only bounded supplied observations. Caller holds the existing exclusive profile lease.</summary>
-public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventoryStore
+public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventoryStore, IInventoryReconciliationStore
 {
     private readonly SemaphoreSlim writer = new(1, 1);
 
@@ -33,7 +33,8 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
     }
 
     private InventoryIndexResult Index(PreparedInventorySnapshot snapshot, int batchSize, CancellationToken token,
-        IProgress<InventoryIndexResult>? progress, Func<CancellationToken, Task<InventorySnapshot>>? recapture)
+        IProgress<InventoryIndexResult>? progress, Func<CancellationToken, Task<InventorySnapshot>>? recapture,
+        ReconciliationPublication? reconciliation = null)
     {
         token.ThrowIfCancellationRequested();
         if (!File.Exists(paths.DatabasePath))
@@ -100,7 +101,7 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
             using var publish = connection.BeginTransaction();
             ValidatePrefix(connection, publish, generation, snapshot, cursor);
             token.ThrowIfCancellationRequested();
-            Publish(connection, publish, snapshot.RootIdentity, generation);
+            Publish(connection, publish, snapshot.RootIdentity, generation, reconciliation);
             token.ThrowIfCancellationRequested();
             publish.Commit();
             return Result(InventoryRunStatus.Completed, true, cursor);
@@ -140,7 +141,7 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
                 SetStatus(connection, finish, generation, finalStatus);
                 if (canPublish)
                 {
-                    Publish(connection, finish, snapshot.RootIdentity, generation);
+                    Publish(connection, finish, snapshot.RootIdentity, generation, reconciliation);
                 }
                 token.ThrowIfCancellationRequested();
                 finish.Commit();
@@ -171,7 +172,7 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
         if (!File.Exists(paths.DatabasePath)) return new InventoryIndexState([], []);
         using var connection = Open();
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version > 3) throw new StoreInitializationException("store.newer_schema");
+        if (version > 4) throw new StoreInitializationException("store.newer_schema");
         if (version < 1) throw new StoreInitializationException("store.invalid_schema");
         SqliteApplicationStore.ValidateMigration(connection, null, version);
         if (version == 1) return new InventoryIndexState([], []);
@@ -251,13 +252,16 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
         }
     }
 
-    private static void Publish(SqliteConnection connection, SqliteTransaction transaction, string rootIdentity, string generation)
+    private static void Publish(SqliteConnection connection, SqliteTransaction transaction, string rootIdentity, string generation,
+        ReconciliationPublication? reconciliation = null)
     {
+        GuardReconciliationPublication(connection, transaction, rootIdentity, generation, reconciliation);
         using var publish = InventorySchema.Command(connection, transaction,
             "INSERT INTO InventoryPublishedRoot(RootIdentity,GenerationId) VALUES($root,$generation) ON CONFLICT(RootIdentity) DO UPDATE SET GenerationId=excluded.GenerationId;");
         publish.Parameters.AddWithValue("$root", rootIdentity);
         publish.Parameters.AddWithValue("$generation", generation);
         publish.ExecuteNonQuery();
+        CompleteReconciliationPublication(connection, transaction, rootIdentity, generation, reconciliation);
     }
 
     private static void ValidatePrefix(SqliteConnection connection, SqliteTransaction transaction, string generation,

@@ -88,6 +88,26 @@ internal sealed class ProcessInventorySession : IDisposable
         catch { session.Dispose(); throw; }
     }
 
+    // T-0057: same privately minted session and retained, bounded controls; no source path transport.
+    public void SetReconciliationPlan(InventoryReconciliationPlan plan)
+    {
+        if (plan.Before.RootIdentity != Snapshot.RootIdentity)
+            throw new InvalidOperationException("fixture.session.reconciliation_root");
+        CreateRetained("reconciliation-plan.json", JsonSerializer.SerializeToUtf8Bytes(
+            new ReconciliationEnvelope(SessionId, Fingerprint, plan)));
+    }
+
+    public InventoryReconciliationPlan ReadReconciliationPlan()
+    {
+        var envelope = JsonSerializer.Deserialize<ReconciliationEnvelope>(
+            ReadRetained("reconciliation-plan.json", MaximumSnapshotBytes), new JsonSerializerOptions { MaxDepth = 16 })
+            ?? throw new InvalidOperationException("fixture.session.reconciliation_plan");
+        if (envelope.SessionId != SessionId || envelope.Fingerprint != Fingerprint ||
+            envelope.Plan.Before.RootIdentity != Snapshot.RootIdentity)
+            throw new InvalidOperationException("fixture.session.reconciliation_binding");
+        return envelope.Plan;
+    }
+
     public void ValidateProfileBoundary()
     {
         pins.Validate();
@@ -98,9 +118,14 @@ internal sealed class ProcessInventorySession : IDisposable
         // Only this minted profile's bounded migration backups are inspected; no source tree scan.
         var backups = Path.Combine(Paths.DataDirectory, "backups");
         var count = 0;
-        foreach (var backup in Directory.EnumerateFiles(backups, "before-inventory-v2-*.db", SearchOption.TopDirectoryOnly))
+        foreach (var backup in Directory.EnumerateFiles(backups, "before-inventory-v*-*.db", SearchOption.TopDirectoryOnly))
         {
             if (++count > 4) throw new InvalidOperationException("fixture.session.backup_limit");
+            var backupName = Path.GetFileName(backup);
+            if (!backupName.StartsWith("before-inventory-v2-", StringComparison.Ordinal) &&
+                !backupName.StartsWith("before-inventory-v3-", StringComparison.Ordinal) &&
+                !backupName.StartsWith("before-inventory-v4-", StringComparison.Ordinal))
+                throw new InvalidOperationException("fixture.session.backup_version");
             RejectReparseAncestors(backup);
             using var handle = pins.OpenReadFile(backups, Path.GetFileName(backup));
         }
@@ -189,6 +214,7 @@ internal sealed class ProcessInventorySession : IDisposable
         pins.Dispose();
     }
 
+    private sealed record ReconciliationEnvelope(string SessionId, string Fingerprint, InventoryReconciliationPlan Plan);
     private sealed record SessionMarker(string Format, string SessionId, string Token, string SnapshotSha256, string Fingerprint);
     private sealed record SnapshotEnvelope(string SessionId, string Token, InventorySnapshot Snapshot);
 }

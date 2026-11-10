@@ -51,7 +51,7 @@ internal static class InventoryCaptureSchema
     {
         InventorySchema.Ensure(connection, dataDirectory, token);
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version == 3) return;
+        if (version >= 3) return;
         if (version != 2) throw new StoreInitializationException("store.invalid_schema");
         token.ThrowIfCancellationRequested();
         var directory = Path.Combine(dataDirectory, "backups");

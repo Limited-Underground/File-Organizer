@@ -9,6 +9,8 @@ internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        if (args.Length == 3 && args[0] == "--fixture-reconciliation-child")
+            return await T0057InventoryReconciliationTests.RunChildAsync(args[1], args[2]);
         if (args.Length == 5 && args[0] == "--fixture-capture-child") return await RunCaptureChild(args);
         if (args.Length != 3 || args[0] != "--fixture-index-child" || args[2] is not ("pause" or "resume")) return 64;
         try
