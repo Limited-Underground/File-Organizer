@@ -13,7 +13,9 @@ internal sealed class TestWorkspace
             throw new InvalidOperationException("Test root must identify the File Organizer checkout.");
         }
 
-        Root = Path.Combine(repositoryRoot, "artifacts", "FO-002-bootstrap-20261029", "test-data", Guid.NewGuid().ToString("N"));
+        var task = Environment.GetEnvironmentVariable("FILE_ORGANIZER_EVIDENCE_TASK") ?? "FO-003-fixtures-20261029";
+        if (task is not ("FO-003-fixtures-20261029" or "FO-005-indexing-20261029" or "FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-012-indexed-ui-20261029" or "FO-012-search-20261029" or "FO-012-filters-20261101")) throw new InvalidOperationException("Unsupported test evidence task.");
+        Root = Path.Combine(repositoryRoot, "artifacts", task, "test-data", Guid.NewGuid().ToString("N"));
         RejectReparseAncestors(Root);
         Directory.CreateDirectory(Root);
     }

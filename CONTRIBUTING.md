@@ -4,7 +4,7 @@ Community modifications and pull requests are welcome under Apache 2.0. Intentio
 
 ## Authority and continuity
 
-Read README and docs/PROJECT_STATUS.md first. Dedicated GitHub Project #16 owns live task scope, priority, dependencies and owner decisions. docs/ROADMAP.md retains engineering acceptance and sequence, not a competing live tracker. The owner authorized the bounded first executable checkpoint under FO-002 on October 29, 2026. Board status never grants implementation, publication, system, physical or release authority.
+Read README and docs/PROJECT_STATUS.md first. Dedicated GitHub Project #16 owns live task scope, priority, dependencies and owner decisions. docs/ROADMAP.md retains engineering acceptance and sequence, not a competing live tracker. The owner accepted commit `acbb0694abf71f395851c666bf4c17b65586ebb2` on `candidate/fo-002-working-milestone` as the development baseline, then authorized the bounded FO-003 test fixture/fault foundation. Board status never grants implementation, publication, system, physical or release authority.
 
 Before each task inspect the actual repository/ref, working changes, scope and retained task artifacts; assign appropriate subagents. Use clear outcomes and proportionate validation. No fixed six-section ceremony, daily PR limit or publication time window applies. Preserve dirty work, evidence and unrelated files. Recover routine tool failures without expanding scope. Do not access obsolete copies or another session's active workspace.
 
@@ -16,11 +16,13 @@ The planned layout is src/ for desktop and application/core modules, src/adapter
 
 Use modern C# on .NET 10, nullable reference types, explicit cancellation, async I/O and bounded concurrency. Keep UI code out of engines. Avoid catch-and-ignore, unbounded enumerations and treating paths as stable identities. SDK and package versions are pinned in global.json, Directory.Packages.props and per-project lock files. Use tools/Test-Development.ps1 for the reproducible validation route; ordinary restore uses locked mode after these reviewed pins. Use license review, vulnerability review and an SBOM before distribution. The checkpoint introduces no dependency on optional commercial Avalonia tooling.
 
+FO-003 helpers belong only in `tests/FileOrganizer.Tests/Fixtures/`. Discover the executing test assembly's checkout; never accept arbitrary fixture destinations or real-data roots. Keep generated data in fresh owned runs under ignored `artifacts/FO-003-fixtures-20261029/fixtures/`. Validate plans before payload creation, enforce quotas throughout execution, use kernel-rooted child operations and preserve all partial/fault receipts. Do not replace retained-handle safety with path checks alone. [BENCHMARKS.md](docs/BENCHMARKS.md) owns limits, lifecycle and fault semantics. The harness has no cleanup API and introduces no production filesystem or transfer abstraction.
+
 ## Review and evidence
 
 Use short-lived task branches from main and focused PRs with independent review. Describe changed behavior, acceptance evidence and limits. Owner review covers unresolved architectural choices; review by another AI does not substitute for human release acceptance. Use meaningful unit tests for engine state and integration/fault tests for actual boundaries. Host, filesystem fault, installer, clean-machine, physical USB and release gates remain separate.
 
-Use SemVer once buildable artifacts exist, beginning with unreleased 0.1.0 development candidates. No product version/build is asserted now. Document ownership: requirements own user acceptance; architecture owns interfaces/data/recovery/storage; technology owns evaluation; benchmarks own test recipes; roadmap owns initial tasks; status owns current engineering handoff. Update the owning document instead of duplicating mutable facts.
+Use SemVer for buildable artifacts, beginning with unreleased 0.1.0 development candidates. A local build is not a released product. Document ownership: requirements own user acceptance; architecture owns interfaces/data/recovery/storage; technology owns evaluation; benchmarks own test recipes; roadmap owns initial tasks; status owns current engineering handoff. Update the owning document instead of duplicating mutable facts.
 
 Release requires accepted V1 evidence, independent review, supported Windows matrix, offline verification, accessibility, dependency/notices/SBOM checks, signed installer policy, upgrade/rollback/retention and recovery verification, and explicit owner release authorization. Do not publish a release merely because tests pass.
 

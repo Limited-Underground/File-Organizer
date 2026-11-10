@@ -47,6 +47,7 @@ internal sealed class DesktopRuntime : IAsyncDisposable
     private readonly IHost host;
     private readonly TimeSpan shutdownDeadline;
     public BootstrapWorker Worker { get; }
+    public InventoryViewModel Inventory { get; }
 
     public DesktopRuntime(AppDataPaths paths, IApplicationStore? store = null, TimeSpan? shutdownTimeout = null)
     {
@@ -66,11 +67,13 @@ internal sealed class DesktopRuntime : IAsyncDisposable
             builder.Services.AddSingleton(paths);
             if (store is null) builder.Services.AddSingleton<IApplicationStore, SqliteApplicationStore>();
             else builder.Services.AddSingleton(store);
+            builder.Services.AddSingleton<IIndexedInventoryReader, SqliteIndexedInventoryReader>();
             builder.Services.AddSingleton<BootstrapWorker>();
             builder.Services.AddHostedService(services => services.GetRequiredService<BootstrapWorker>());
             builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = shutdownTimeout ?? TimeSpan.FromSeconds(10));
             host = builder.Build();
             Worker = host.Services.GetRequiredService<BootstrapWorker>();
+            Inventory = new InventoryViewModel(host.Services.GetRequiredService<IIndexedInventoryReader>());
         }
         catch { lease.Dispose(); throw; }
     }
@@ -85,6 +88,8 @@ internal sealed class DesktopRuntime : IAsyncDisposable
     {
         try
         {
+            // Every saved-result query must finish before the profile's ownership can release.
+            await Inventory.DisposeAsync();
             using var timeout = new CancellationTokenSource(shutdownDeadline);
             await host.StopAsync(timeout.Token);
             if (Worker.ExecuteTask is not null) await Worker.Completion.WaitAsync(timeout.Token);

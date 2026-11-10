@@ -12,7 +12,7 @@ namespace FileOrganizer.Persistence;
 /// </summary>
 public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationStore
 {
-    private const int CurrentSchemaVersion = 1;
+    private const int CurrentSchemaVersion = 3;
     private const string InitialMigration = """
         CREATE TABLE SchemaMigration (
             Version INTEGER NOT NULL PRIMARY KEY CHECK (Version > 0),
@@ -89,9 +89,10 @@ public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationSto
                 state.Parameters.AddWithValue("$utc", DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture));
                 state.ExecuteNonQuery();
                 Execute(connection, transaction, "PRAGMA user_version=1;");
+                version = 1;
             }
 
-            ValidateMigration(connection, transaction);
+            ValidateMigration(connection, transaction, version);
             cancellationToken.ThrowIfCancellationRequested();
             if (Execute(connection, transaction,
                 "UPDATE AppState SET StartupCount=StartupCount+1 WHERE Id=1 AND StartupCount<2147483647;") != 1)
@@ -103,7 +104,7 @@ public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationSto
                 "SELECT StartupCount FROM AppState WHERE Id=1;"), CultureInfo.InvariantCulture);
             cancellationToken.ThrowIfCancellationRequested();
             transaction.Commit();
-            return new StoreState(CurrentSchemaVersion, startupCount);
+            return new StoreState(version, startupCount);
         }
         catch (SqliteException exception)
         {
@@ -121,17 +122,21 @@ public sealed class SqliteApplicationStore(AppDataPaths paths) : IApplicationSto
         }
     }
 
-    private static void ValidateMigration(SqliteConnection connection, SqliteTransaction transaction)
+    internal static void ValidateMigration(SqliteConnection connection, SqliteTransaction? transaction, int version)
     {
         using var command = Command(connection, transaction,
             "SELECT Version,Checksum FROM SchemaMigration ORDER BY Version;");
         using var reader = command.ExecuteReader();
-        if (!reader.Read() || reader.GetInt32(0) != CurrentSchemaVersion
-            || !string.Equals(reader.GetString(1), InitialChecksum, StringComparison.Ordinal)
-            || reader.Read())
+        for (var expected = 1; expected <= version; expected++)
         {
-            throw new StoreInitializationException("store.migration_mismatch");
+            var checksum = expected switch { 1 => InitialChecksum, 2 => InventorySchema.Checksum, _ => InventoryCaptureSchema.Checksum };
+            if (!reader.Read() || reader.GetInt32(0) != expected ||
+                !string.Equals(reader.GetString(1), checksum, StringComparison.Ordinal))
+                throw new StoreInitializationException("store.migration_mismatch");
         }
+
+        if (version is < 1 or > CurrentSchemaVersion || reader.Read())
+            throw new StoreInitializationException("store.migration_mismatch");
     }
 
     private static SqliteCommand Command(SqliteConnection connection, SqliteTransaction? transaction, string sql)
