@@ -1,5 +1,7 @@
 # V1 roadmap and validation plan
 
+October 29 execution note: dedicated Project #16 now contains the existing FO-001–FO-018 draft tasks and uses Todo/In Progress/Done. Existing FO-002 owns the owner-authorized first executable architecture checkpoint recorded in PROJECT_STATUS.md. Its bounded local validation does not close broader architecture or later-task acceptance. No duplicate task list was created; the initial milestone/task acceptance below remains engineering sequence.
+
 Status: local proposal for `File Organizer — Development`, 2026-10-28. No issues, milestones or Project items are asserted created by this file. After approved publication, GitHub Projects owns live scope/status/dependencies; this document retains acceptance gates and engineering IDs. Production implementation remains unauthorized until owner architecture acceptance.
 
 ## Milestone sequence
@@ -33,6 +35,7 @@ Create one authoritative issue per ID after publication approval. Use statuses B
 | FO-006 / 3 | Implement incremental tracking and reconciliation | FO-005 | Watcher overflow, USN checkpoint discontinuity and offline remount converge to truth inventory; IX-02/05 pass. |
 | FO-007 / 4 | Implement durable operation state machine | FO-003, FO-004, FO-005 | Every side-effect boundary has recoverable journal intent/result; fault replay never silently loses source or overwrites changed target; RS-01 passes. |
 | FO-008 / 4 | Implement verified copy/move queue | FO-007 | FM-02/03/04, RS-02 pass pause/resume/cancel, corruption, conflict and cross-volume move cases; unsupported metadata disclosed. |
+| FO-019 / 4 | Implement backup jobs (D-121) | FO-007, FO-008 | Configure a list of sources, one destination, a schedule and exclusions; always exclude `*.key.pem` by name before opening files. Add-only by default: never overwrite or remove destination files, accept identical existing files only after SHA-256 comparison, and report differing files as conflicts. Check every copied file against its source by SHA-256 and report every run, including copied, identical, excluded, failed and conflicting items; mark a job successful only when all included files are checked. Match `D:\LimitedUnderground\Backup-To-OneDrive.ps1` on generated disposable fixture trees, including nested sources, exclusions, identical/different existing targets, missing sources, size limits, partial failures and destination path mapping; test the script only with explicit fixture source/list/destination/log paths, never real folders. Scheduling follows the owner-selected overnight/no-active-project-work policy. |
 | FO-009 / 5 | Implement dual-pane desktop navigation | FO-002, FO-004 | FM-01 and keyboard/accessibility/error-state checks pass; UI remains responsive during enumeration. |
 | FO-010 / 5 | Integrate transfer/conflict/comparison UI | FO-008, FO-009 | FM-03/04/05 pass including unknown ETA, changing targets, incomplete comparison and partial failures. |
 | FO-011 / 6 | Implement staged duplicate detection and review | FO-005, FO-008 | DU-01/02/03 pass known truth corpus, mutation invalidation, hard links and protected backups without destructive defaults. |

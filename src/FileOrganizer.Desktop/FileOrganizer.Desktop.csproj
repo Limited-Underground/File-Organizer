@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="runtime-settings.json" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <ProjectReference Include="../FileOrganizer.Application/FileOrganizer.Application.csproj" />
+    <ProjectReference Include="../FileOrganizer.Persistence/FileOrganizer.Persistence.csproj" />
+  </ItemGroup>
+</Project>

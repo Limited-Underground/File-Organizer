@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FileOrganizer.Application/FileOrganizer.Application.csproj" />
+    <Project Path="src/FileOrganizer.Desktop/FileOrganizer.Desktop.csproj" />
+    <Project Path="src/FileOrganizer.Persistence/FileOrganizer.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FileOrganizer.Tests/FileOrganizer.Tests.csproj" />
+  </Folder>
+</Solution>
