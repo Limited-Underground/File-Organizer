@@ -26,7 +26,7 @@ internal sealed class ProcessInventorySession : IDisposable
     {
         if (!Guid.TryParseExact(sessionId, "N", out var parsed) || parsed.ToString("N") != sessionId)
             throw new InvalidOperationException("fixture.session.invalid_id");
-        if (evidenceTask is not ("FO-005-recovery-20261029" or "FO-005-streaming-20261029"))
+        if (evidenceTask is not ("FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-007-operation-journal-20261118"))
             throw new InvalidOperationException("fixture.session.invalid_task");
         SessionId = sessionId;
         var checkout = FindCheckout();

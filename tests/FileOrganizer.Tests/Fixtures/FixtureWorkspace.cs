@@ -54,7 +54,7 @@ internal sealed class FixtureWorkspace : IDisposable
         try
         {
             var evidence = evidenceTask ?? Environment.GetEnvironmentVariable("FILE_ORGANIZER_EVIDENCE_TASK") ?? "FO-003-fixtures-20261029";
-            if (evidence is not ("FO-003-fixtures-20261029" or "FO-005-indexing-20261029" or "FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-012-indexed-ui-20261029" or "FO-012-search-20261029" or "FO-012-filters-20261101"))
+            if (evidence is not ("FO-003-fixtures-20261029" or "FO-005-indexing-20261029" or "FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-012-indexed-ui-20261029" or "FO-012-search-20261029" or "FO-012-filters-20261101" or "FO-007-operation-journal-20261118"))
                 throw new FixtureSafetyException("fixture.invalid_evidence_task");
             workspace.Limits.Validate();
             var checkout = FindCheckout();

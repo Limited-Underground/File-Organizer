@@ -14,7 +14,7 @@ internal sealed class TestWorkspace
         }
 
         var task = Environment.GetEnvironmentVariable("FILE_ORGANIZER_EVIDENCE_TASK") ?? "FO-003-fixtures-20261029";
-        if (task is not ("FO-003-fixtures-20261029" or "FO-005-indexing-20261029" or "FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-012-indexed-ui-20261029" or "FO-012-search-20261029" or "FO-012-filters-20261101")) throw new InvalidOperationException("Unsupported test evidence task.");
+        if (task is not ("FO-003-fixtures-20261029" or "FO-005-indexing-20261029" or "FO-005-recovery-20261029" or "FO-005-streaming-20261029" or "FO-012-indexed-ui-20261029" or "FO-012-search-20261029" or "FO-012-filters-20261101" or "FO-007-operation-journal-20261118")) throw new InvalidOperationException("Unsupported test evidence task.");
         Root = Path.Combine(repositoryRoot, "artifacts", task, "test-data", Guid.NewGuid().ToString("N"));
         RejectReparseAncestors(Root);
         Directory.CreateDirectory(Root);

@@ -139,13 +139,46 @@ public sealed class T0067InventoryComparisonTests
         Assert.Equal("inventory.comparison_uncommitted",(await Assert.ThrowsAsync<InventoryIndexException>(()=>new SqliteInventoryStore(paths).CompareAsync(request))).Code);
     }
     [Theory]
-    [InlineData(4)] [InlineData(6)]
+    [InlineData(4)] [InlineData(7)]
     public async Task UnsupportedSchemaIsRefusedWithoutMutation(int version)
     {
         var pair=await Seed(Truth(Entry("old","a")),Truth(Entry("new","a")));Sql(pair.Paths,"PRAGMA user_version="+version+";");
         Assert.Equal("inventory.comparison_schema_unsupported",(await Assert.ThrowsAsync<InventoryIndexException>(()=>Compare(pair))).Code);
         Assert.Equal((long)version,Sql(pair.Paths,"PRAGMA user_version;"));
     }
+    [Fact]
+    public async Task V6OperationJournalPreservesComparisonAndVerifiedV5Backup()
+    {
+        var pair = await Seed(Truth(Entry("old", "a")), Truth(Entry("new", "a")));
+        const string checksums = "SELECT group_concat(Checksum, ',') FROM (SELECT Checksum FROM SchemaMigration WHERE Version<=5 ORDER BY Version);";
+        var oldChecksums = Sql(pair.Paths, checksums);
+        var originalComparison = JsonSerializer.Serialize(await Compare(pair));
+        Assert.Equal(5L, Sql(pair.Paths, "PRAGMA user_version;"));
+
+        using var lease = ProfileLease.Acquire(pair.Paths);
+        var journal = new SqliteOperationJournal(pair.Paths);
+        var id = Guid.NewGuid();
+        Assert.Empty(await journal.ReadAsync(id, CancellationToken.None));
+        Assert.Equal(5L, Sql(pair.Paths, "PRAGMA user_version;"));
+        var plan = new OperationFileFixture().Plan(OperationMode.Copy);
+        await journal.AppendAsync(id, new(0, OperationRecordKind.Plan, Plan: plan), CancellationToken.None);
+
+        Assert.Equal(6L, Sql(pair.Paths, "PRAGMA user_version;"));
+        Assert.Equal(oldChecksums, Sql(pair.Paths, checksums));
+        Assert.Equal(originalComparison, JsonSerializer.Serialize(await Compare(pair)));
+        var backupPath = Assert.Single(Directory.GetFiles(Path.Combine(pair.Paths.DataDirectory, "backups"), "before-operation-v6-*.db"));
+        using var backup = new SqliteConnection(new SqliteConnectionStringBuilder
+            { DataSource = backupPath, Mode = SqliteOpenMode.ReadOnly, Pooling = false }.ToString());
+        backup.Open();
+        SqliteApplicationStore.ValidateMigration(backup, null, 5);
+        using var command = backup.CreateCommand();
+        command.CommandText = "PRAGMA user_version;";
+        Assert.Equal(5L, command.ExecuteScalar());
+        command.CommandText = "SELECT count(*) FROM InventoryGenerationCommit;";
+        Assert.Equal(2L, command.ExecuteScalar());
+    }
+
+
     [Fact]
     public async Task HistoricalComparisonIsDeterministicAndByteReadOnlyAfterFurtherPublication()
     {

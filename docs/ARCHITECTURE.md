@@ -184,6 +184,15 @@ Migration: acquire exclusive profile lock, stop new jobs, settle/checkpoint acti
 
 ## Transfer and recovery contract
 
+### FO-007 single-item journal
+
+The operation runner stores a plan and a sequence of immutable intent and result records in SQLite. Schema 6 is installed on first journal write after a verified schema-5 backup. Each record commits separately with FULL synchronization, and file effects run outside database transactions. The caller holds the profile lease. The file adapter supplies stable identities, verified absence, length and SHA-256. It rechecks the expected observation at the effect boundary and refuses overwrites.
+
+The add-only copy flow creates an exclusive partial, writes and flushes it, then promotes that same verified object. The move flow adds source retention to a separate slot after promotion. Replay records a proved promotion or retention without repeating the effect. It re-flushes an owned partial containing the full expected bytes, and retains unknown partials, changed targets and changed sources for review. A completed result records what the operation verified at completion.
+
+The [disposable fixture design](BENCHMARKS.md) supplies the fault model and ownership boundary. FO-008 provides production handles, device-specific durability and guarded renames, chunk checkpoints, queue control and transfer policies. FO-007 exercises file effects through a disposable fixture adapter and leaves the desktop unchanged.
+
+
 State machine: `Planned -> Queued -> Running -> Verifying -> CommitPending -> Completed`; explicit branches to `PauseRequested -> Paused`, `CancelRequested -> Cancelled`, `WaitingForVolume`, `Conflict`, `Failed` and `RecoveryRequired`. Each item tracks its own phase; a queue completion aggregates terminal item outcomes rather than hiding failures. Pause/cancel are cooperative safe-point requests, never claims that a partially executing OS call was rolled back.
 
 1. Plan: enumerate source entries without traversing reparse points, capture handle identity and metadata, destination capabilities, required space and explicit conflict choices. A plan is previewable and expires if preconditions change. Never overwrite an unexamined destination. Unsupported streams/ACLs/sparse/compression/encryption metadata must be disclosed; V1 cannot claim a verified full-fidelity copy when only primary content is preserved.

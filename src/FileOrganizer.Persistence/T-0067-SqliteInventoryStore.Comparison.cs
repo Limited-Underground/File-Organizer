@@ -57,7 +57,7 @@ public sealed partial class SqliteInventoryStore : IInventoryGenerationComparer
         InventorySchema.Execute(connection, null, "PRAGMA query_only=ON;");
         using var transaction = connection.BeginTransaction(deferred: true);
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, transaction, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version != 5) throw new InventoryIndexException("inventory.comparison_schema_unsupported");
+        if (version is < 5 or > 6) throw new InventoryIndexException("inventory.comparison_schema_unsupported");
         SqliteApplicationStore.ValidateMigration(connection, transaction, version);
         var before = ReadComparisonGeneration(connection, transaction, request.RootIdentity, request.BeforeGeneration, token);
         var after = ReadComparisonGeneration(connection, transaction, request.RootIdentity, request.AfterGeneration, token);

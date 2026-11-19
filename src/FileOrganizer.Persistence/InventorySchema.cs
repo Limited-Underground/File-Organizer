@@ -54,7 +54,7 @@ internal static class InventorySchema
     internal static void Ensure(SqliteConnection connection, string dataDirectory, CancellationToken token)
     {
         var version = Convert.ToInt32(Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version > 5) throw new StoreInitializationException("store.newer_schema");
+        if (version > 6) throw new StoreInitializationException("store.newer_schema");
         if (version < 1) throw new StoreInitializationException("store.invalid_schema");
         if (Convert.ToString(Scalar(connection, null, "PRAGMA quick_check;"), CultureInfo.InvariantCulture) != "ok")
             throw new StoreInitializationException("store.corrupt");

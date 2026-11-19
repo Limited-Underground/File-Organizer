@@ -39,7 +39,7 @@ internal static class InventoryComparisonSchema
     {
         InventoryReconciliationSchema.Ensure(connection, dataDirectory, token, beforeCommit);
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version == 5) return;
+        if (version >= 5) return;
         if (version != 4) throw new StoreInitializationException("store.invalid_schema");
         token.ThrowIfCancellationRequested();
         var directory = Path.Combine(dataDirectory, "backups");

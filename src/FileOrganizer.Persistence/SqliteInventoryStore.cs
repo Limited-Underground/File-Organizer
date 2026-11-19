@@ -172,7 +172,7 @@ public sealed partial class SqliteInventoryStore(AppDataPaths paths) : IInventor
         if (!File.Exists(paths.DatabasePath)) return new InventoryIndexState([], []);
         using var connection = Open();
         var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-        if (version > 5) throw new StoreInitializationException("store.newer_schema");
+        if (version > 6) throw new StoreInitializationException("store.newer_schema");
         if (version < 1) throw new StoreInitializationException("store.invalid_schema");
         SqliteApplicationStore.ValidateMigration(connection, null, version);
         if (version == 1) return new InventoryIndexState([], []);

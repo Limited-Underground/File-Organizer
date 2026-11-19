@@ -208,7 +208,7 @@ public sealed class T0057InventoryReconciliationTests
         Assert.Equal(oldChecksums, Scalar(paths, "SELECT group_concat(Checksum,',') FROM (SELECT Checksum FROM SchemaMigration WHERE Version<=3 ORDER BY Version);"));
         Assert.Equal(hash, SHA256.HashData(File.ReadAllBytes(backup)));
         Assert.Equal(new[] { "a.txt", "new.txt" }, await Paths(paths, adopted.Root.GenerationId));
-        Execute(paths, "PRAGMA user_version=6;");
+        Execute(paths, "PRAGMA user_version=7;");
         await Assert.ThrowsAsync<StoreInitializationException>(() => new SqliteApplicationStore(paths).InitializeAsync(CancellationToken.None));
     }
 

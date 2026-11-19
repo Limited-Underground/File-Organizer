@@ -82,7 +82,7 @@ public sealed partial class SqliteInventoryStore
             if (!File.Exists(paths.DatabasePath)) return null;
             using var connection = Open();
             var version = Convert.ToInt32(InventorySchema.Scalar(connection, null, "PRAGMA user_version;"), CultureInfo.InvariantCulture);
-            if (version > 5) throw new StoreInitializationException("store.newer_schema");
+            if (version > 6) throw new StoreInitializationException("store.newer_schema");
             SqliteApplicationStore.ValidateMigration(connection, null, version);
             if (version < 4) return null;
             using var transaction = connection.BeginTransaction(deferred: true);

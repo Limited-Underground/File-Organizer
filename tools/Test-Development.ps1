@@ -1,5 +1,5 @@
 #requires -Version 7.2
-param([switch]$SkipRestore, [ValidateSet('FO-003-fixtures-20261029','FO-005-indexing-20261029','FO-005-recovery-20261029','FO-005-streaming-20261029','FO-012-indexed-ui-20261029','FO-012-search-20261029','FO-012-filters-20261101')][string]$EvidenceTask = 'FO-012-filters-20261101')
+param([switch]$SkipRestore, [ValidateSet('FO-003-fixtures-20261029','FO-005-indexing-20261029','FO-005-recovery-20261029','FO-005-streaming-20261029','FO-012-indexed-ui-20261029','FO-012-search-20261029','FO-012-filters-20261101','FO-007-operation-journal-20261118')][string]$EvidenceTask = 'FO-012-filters-20261101')
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Push-Location $projectRoot
